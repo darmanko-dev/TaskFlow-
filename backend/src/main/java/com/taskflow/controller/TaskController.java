@@ -1,11 +1,13 @@
 package com.taskflow.controller;
 
+import com.taskflow.dto.request.BulkTaskUpdateRequest;
 import com.taskflow.dto.request.TaskRequest;
 import com.taskflow.dto.response.ApiResponse;
 import com.taskflow.dto.response.TaskResponse;
 import com.taskflow.enums.TaskPriority;
 import com.taskflow.enums.TaskStatus;
 import com.taskflow.service.TaskService;
+import com.taskflow.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,6 +29,7 @@ import java.util.Map;
 public class TaskController {
 
     private final TaskService taskService;
+    private final UserService userService;
 
     @GetMapping
     @Operation(summary = "Get all tasks")
@@ -100,6 +103,16 @@ public class TaskController {
         return ResponseEntity.ok(ApiResponse.success(tasks));
     }
 
+    @GetMapping("/watched")
+    @Operation(summary = "Get watched tasks")
+    public ResponseEntity<ApiResponse<Page<TaskResponse>>> getWatchedTasks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<TaskResponse> tasks = taskService.getWatchedTasks(
+                PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        return ResponseEntity.ok(ApiResponse.success(tasks));
+    }
+
     @GetMapping("/search")
     @Operation(summary = "Search tasks")
     public ResponseEntity<ApiResponse<Page<TaskResponse>>> searchTasks(
@@ -109,5 +122,29 @@ public class TaskController {
         Page<TaskResponse> tasks = taskService.searchTasks(query,
                 PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.success(tasks));
+    }
+
+    @PostMapping("/{taskId}/watchers")
+    @Operation(summary = "Watch a task")
+    public ResponseEntity<ApiResponse<Void>> watchTask(@PathVariable Long taskId) {
+        Long userId = userService.getCurrentUserEntity().getId();
+        taskService.addWatcher(taskId, userId);
+        return ResponseEntity.ok(ApiResponse.success("Now watching task", null));
+    }
+
+    @DeleteMapping("/{taskId}/watchers")
+    @Operation(summary = "Unwatch a task")
+    public ResponseEntity<ApiResponse<Void>> unwatchTask(@PathVariable Long taskId) {
+        Long userId = userService.getCurrentUserEntity().getId();
+        taskService.removeWatcher(taskId, userId);
+        return ResponseEntity.ok(ApiResponse.success("Stopped watching task", null));
+    }
+
+    @PatchMapping("/bulk")
+    @Operation(summary = "Bulk update tasks")
+    public ResponseEntity<ApiResponse<List<TaskResponse>>> bulkUpdateTasks(
+            @Valid @RequestBody BulkTaskUpdateRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Tasks updated",
+                taskService.bulkUpdateTasks(request)));
     }
 }

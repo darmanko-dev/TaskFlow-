@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse, Page } from '../models/api-response.model';
-import { Task, TaskRequest, TaskStatus } from '../models/task.model';
+import { Task, TaskRequest, TaskStatus, BulkTaskUpdateRequest } from '../models/task.model';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +39,14 @@ export class TaskService {
     return this.http.get<ApiResponse<Page<Task>>>(`${this.apiUrl}/my-tasks`, { params });
   }
 
+  getWatchedTasks(page: number = 0, size: number = 10): Observable<ApiResponse<Page<Task>>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<ApiResponse<Page<Task>>>(`${this.apiUrl}/watched`, { params });
+  }
+
   createTask(data: TaskRequest): Observable<ApiResponse<Task>> {
     return this.http.post<ApiResponse<Task>>(this.apiUrl, data);
   }
@@ -62,5 +70,17 @@ export class TaskService {
       .set('size', size.toString());
 
     return this.http.get<ApiResponse<Page<Task>>>(`${this.apiUrl}/search`, { params });
+  }
+
+  watchTask(taskId: number): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/${taskId}/watchers`, {});
+  }
+
+  unwatchTask(taskId: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${taskId}/watchers`);
+  }
+
+  bulkUpdateTasks(request: BulkTaskUpdateRequest): Observable<ApiResponse<Task[]>> {
+    return this.http.patch<ApiResponse<Task[]>>(`${this.apiUrl}/bulk`, request);
   }
 }

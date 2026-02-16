@@ -73,6 +73,18 @@ export const routes: Routes = [
       {
         path: 'activity',
         loadComponent: () => import('./features/activity/activity-log/activity-log.component').then(m => m.ActivityLogComponent)
+      },
+      {
+        path: 'projects/:id/automations',
+        loadComponent: () => import('./features/automations/automation-list/automation-list.component').then(m => m.AutomationListComponent)
+      },
+      {
+        path: 'projects/:id/labels',
+        loadComponent: () => import('./features/labels/label-manager/label-manager.component').then(m => m.LabelManagerComponent)
+      },
+      {
+        path: 'sprints/:sprintId/report',
+        loadComponent: () => import('./features/reports/sprint-report/sprint-report.component').then(m => m.SprintReportComponent)
       }
     ]
   },

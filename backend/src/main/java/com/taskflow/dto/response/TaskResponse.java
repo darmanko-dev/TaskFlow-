@@ -38,7 +38,11 @@ public class TaskResponse {
     private LocalDate dueDate;
     private Double estimatedHours;
     private Double loggedHours;
+    private Integer storyPoints;
     private List<String> tags;
+    private List<LabelResponse> labels;
+    private int watcherCount;
+    private boolean watching;
     private List<CommentResponse> comments;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

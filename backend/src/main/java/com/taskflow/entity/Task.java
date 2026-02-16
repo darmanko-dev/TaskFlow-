@@ -10,7 +10,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
@@ -80,11 +82,40 @@ public class Task {
     @Builder.Default
     private Double loggedHours = 0.0;
 
+    @Builder.Default
+    private Integer storyPoints = 0;
+
     @ElementCollection
     @CollectionTable(name = "task_tags", joinColumns = @JoinColumn(name = "task_id"))
     @Column(name = "tag")
     @Builder.Default
     private List<String> tags = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_labels",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "label_id")
+    )
+    @Builder.Default
+    private Set<Label> labels = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_watchers",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @Builder.Default
+    private Set<User> watchers = new HashSet<>();
+
+    @OneToMany(mappedBy = "sourceTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TaskLink> outgoingLinks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "targetTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TaskLink> incomingLinks = new ArrayList<>();
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

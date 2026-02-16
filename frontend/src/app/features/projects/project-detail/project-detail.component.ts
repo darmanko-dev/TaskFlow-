@@ -19,7 +19,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ProjectMembersComponent } from '../project-members/project-members.component';
 import { ActivityLogComponent } from '../../activity/activity-log/activity-log.component';
 
-type ActiveTab = 'board' | 'list' | 'members' | 'backlog' | 'epics' | 'activity';
+type ActiveTab = 'board' | 'list' | 'members' | 'backlog' | 'epics' | 'activity' | 'labels' | 'automations';
 
 interface BoardColumn {
   status: TaskStatus;
@@ -279,6 +279,24 @@ interface BoardColumn {
         </a>
       </div>
 
+      <!-- ========== LABELS TAB ========== -->
+      <div *ngIf="activeTab === 'labels'" class="animate-fadeIn">
+        <p class="text-sm text-gray-500 mb-4">Gerez les etiquettes de votre projet pour categoriser les taches.</p>
+        <a [routerLink]="['/projects', project.id, 'labels']"
+           class="btn btn-primary">
+          <i class="fas fa-external-link-alt mr-2"></i>Gerer les Labels
+        </a>
+      </div>
+
+      <!-- ========== AUTOMATIONS TAB ========== -->
+      <div *ngIf="activeTab === 'automations'" class="animate-fadeIn">
+        <p class="text-sm text-gray-500 mb-4">Configurez des regles d'automatisation pour votre projet.</p>
+        <a [routerLink]="['/projects', project.id, 'automations']"
+           class="btn btn-primary">
+          <i class="fas fa-external-link-alt mr-2"></i>Gerer les Automatisations
+        </a>
+      </div>
+
       <!-- ========== ACTIVITY TAB ========== -->
       <div *ngIf="activeTab === 'activity'" class="animate-fadeIn">
         <app-activity-log [projectId]="project.id" [isEmbedded]="true"></app-activity-log>
@@ -403,6 +421,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     { key: 'backlog', label: 'Backlog', icon: 'fa-inbox' },
     { key: 'epics', label: 'Epics', icon: 'fa-layer-group' },
     { key: 'members', label: 'Members', icon: 'fa-users' },
+    { key: 'labels', label: 'Labels', icon: 'fa-tags' },
+    { key: 'automations', label: 'Automations', icon: 'fa-robot' },
     { key: 'activity', label: 'Activity', icon: 'fa-history' }
   ];
 

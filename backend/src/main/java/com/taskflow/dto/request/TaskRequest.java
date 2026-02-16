@@ -31,5 +31,7 @@ public class TaskRequest {
     private LocalDate dueDate;
     private Double estimatedHours;
     private Double loggedHours;
+    private Integer storyPoints;
     private List<String> tags;
+    private List<Long> labelIds;
 }

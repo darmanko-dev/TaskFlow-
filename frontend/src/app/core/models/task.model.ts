@@ -1,5 +1,6 @@
 import { User } from './user.model';
 import { Comment } from './comment.model';
+import { Label } from './label.model';
 
 export enum TaskStatus {
   TODO = 'TODO',
@@ -38,7 +39,11 @@ export interface Task {
   dueDate: string;
   estimatedHours: number;
   loggedHours: number;
+  storyPoints: number;
   tags: string[];
+  labels: Label[];
+  watcherCount: number;
+  watching: boolean;
   comments: Comment[];
   createdAt: string;
   updatedAt: string;
@@ -58,5 +63,17 @@ export interface TaskRequest {
   dueDate: string;
   estimatedHours: number;
   loggedHours: number;
+  storyPoints?: number;
   tags: string[];
+  labelIds?: number[];
+}
+
+export interface BulkTaskUpdateRequest {
+  taskIds: number[];
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  assigneeId?: number;
+  sprintId?: number;
+  epicId?: number;
+  labelIds?: number[];
 }

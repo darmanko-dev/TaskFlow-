@@ -10,12 +10,14 @@ import { TaskService } from '../../../core/services/task.service';
 import { CommentService } from '../../../core/services/comment.service';
 import { UserService } from '../../../core/services/user.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ExportService } from '../../../core/services/export.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { PriorityBadgeComponent } from '../../../shared/components/priority-badge/priority-badge.component';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { AttachmentListComponent } from '../../../shared/components/attachment-list/attachment-list.component';
 import { ActivityLogComponent } from '../../activity/activity-log/activity-log.component';
+import { TaskLinkPanelComponent } from '../../task-links/task-link-panel/task-link-panel.component';
 
 @Component({
   selector: 'app-task-detail',
@@ -29,7 +31,8 @@ import { ActivityLogComponent } from '../../activity/activity-log/activity-log.c
     AvatarComponent,
     LoadingSpinnerComponent,
     AttachmentListComponent,
-    ActivityLogComponent
+    ActivityLogComponent,
+    TaskLinkPanelComponent
   ],
   template: `
     <!-- Loading -->
@@ -82,6 +85,15 @@ import { ActivityLogComponent } from '../../activity/activity-log/activity-log.c
                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">
               <i class="fas fa-level-up-alt text-[10px]"></i>Parent: {{ task.parentTaskKey }}
             </a>
+          </div>
+
+          <!-- Labels -->
+          <div *ngIf="task.labels && task.labels.length > 0" class="flex items-center gap-2 flex-wrap mb-4">
+            <span *ngFor="let label of task.labels"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-white"
+                  [style.backgroundColor]="label.color">
+              {{ label.name }}
+            </span>
           </div>
 
           <!-- Description Section -->
@@ -178,6 +190,14 @@ import { ActivityLogComponent } from '../../activity/activity-log/activity-log.c
               <i class="fas fa-paperclip mr-2 text-gray-400"></i>Pieces jointes
             </h3>
             <app-attachment-list [taskId]="task.id"></app-attachment-list>
+          </div>
+
+          <!-- Task Links Section -->
+          <div class="mt-8">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
+              <i class="fas fa-link mr-2 text-gray-400"></i>Liens
+            </h3>
+            <app-task-link-panel [taskId]="task.id"></app-task-link-panel>
           </div>
 
           <!-- Activity Section -->
@@ -319,6 +339,33 @@ import { ActivityLogComponent } from '../../activity/activity-log/activity-log.c
 
             <hr class="border-gray-100">
 
+            <!-- Story Points -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Story Points</label>
+              <div class="flex items-center gap-2">
+                <i class="fas fa-star text-sm text-yellow-400"></i>
+                <span class="text-sm text-gray-700">{{ task.storyPoints || '--' }}</span>
+              </div>
+            </div>
+
+            <!-- Watchers -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Watchers</label>
+              <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-700">
+                  <i class="fas fa-eye mr-1 text-gray-400"></i>{{ task.watcherCount || 0 }} watcher(s)
+                </span>
+                <button (click)="toggleWatch()"
+                        class="text-xs px-2.5 py-1 rounded-full font-medium transition-colors"
+                        [ngClass]="task.watching ? 'bg-primary-100 text-primary-700 hover:bg-primary-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                  <i class="fas mr-1" [ngClass]="task.watching ? 'fa-eye-slash' : 'fa-eye'"></i>
+                  {{ task.watching ? 'Unwatch' : 'Watch' }}
+                </button>
+              </div>
+            </div>
+
+            <hr class="border-gray-100">
+
             <!-- Tags -->
             <div>
               <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tags</label>
@@ -380,7 +427,8 @@ export class TaskDetailComponent implements OnInit {
     private taskService: TaskService,
     private commentService: CommentService,
     private userService: UserService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private exportService: ExportService
   ) {}
 
   ngOnInit(): void {
@@ -566,6 +614,31 @@ export class TaskDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/tasks']);
+  }
+
+  toggleWatch(): void {
+    if (!this.task) return;
+    const wasWatching = this.task.watching;
+
+    if (wasWatching) {
+      this.taskService.unwatchTask(this.task.id).subscribe({
+        next: () => {
+          this.task!.watching = false;
+          this.task!.watcherCount = Math.max(0, (this.task!.watcherCount || 1) - 1);
+          this.notificationService.success('Stopped watching task');
+        },
+        error: () => this.notificationService.error('Failed to unwatch task')
+      });
+    } else {
+      this.taskService.watchTask(this.task.id).subscribe({
+        next: () => {
+          this.task!.watching = true;
+          this.task!.watcherCount = (this.task!.watcherCount || 0) + 1;
+          this.notificationService.success('Now watching task');
+        },
+        error: () => this.notificationService.error('Failed to watch task')
+      });
+    }
   }
 
   trackByCommentId(index: number, comment: Comment): number {

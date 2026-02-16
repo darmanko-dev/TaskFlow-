@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -38,6 +39,7 @@ public class ProjectController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
     @Operation(summary = "Create a new project")
     public ResponseEntity<ApiResponse<ProjectResponse>> createProject(
             @Valid @RequestBody ProjectRequest request) {
@@ -53,6 +55,7 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
     @Operation(summary = "Update project")
     public ResponseEntity<ApiResponse<ProjectResponse>> updateProject(
             @PathVariable Long id,
@@ -62,6 +65,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
     @Operation(summary = "Delete project (soft delete)")
     public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
@@ -69,6 +73,7 @@ public class ProjectController {
     }
 
     @PostMapping("/{id}/members")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
     @Operation(summary = "Add member to project")
     public ResponseEntity<ApiResponse<ProjectResponse>> addMember(
             @PathVariable Long id,
@@ -78,6 +83,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}/members/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
     @Operation(summary = "Remove member from project")
     public ResponseEntity<ApiResponse<ProjectResponse>> removeMember(
             @PathVariable Long id, @PathVariable Long userId) {

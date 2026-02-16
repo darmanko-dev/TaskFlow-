@@ -60,4 +60,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                                          @Param("priority") TaskPriority priority,
                                          @Param("assigneeId") Long assigneeId,
                                          Pageable pageable);
+
+    List<Task> findBySprintId(Long sprintId);
+
+    @Query("SELECT t FROM Task t JOIN t.watchers w WHERE w.id = :userId")
+    Page<Task> findWatchedByUser(@Param("userId") Long userId, Pageable pageable);
+
+    List<Task> findByIdIn(List<Long> ids);
 }

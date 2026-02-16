@@ -30,11 +30,15 @@ export const API_ENDPOINTS = {
   tasks: {
     base: `${API_URL}/tasks`,
     byId: (id: number) => `${API_URL}/tasks/${id}`,
-    byProject: (projectId: number) => `${API_URL}/projects/${projectId}/tasks`,
+    byProject: (projectId: number) => `${API_URL}/tasks/project/${projectId}`,
     assignee: (taskId: number) => `${API_URL}/tasks/${taskId}/assignee`,
     status: (taskId: number) => `${API_URL}/tasks/${taskId}/status`,
     myTasks: `${API_URL}/tasks/my-tasks`,
-    overdue: `${API_URL}/tasks/overdue`
+    watched: `${API_URL}/tasks/watched`,
+    overdue: `${API_URL}/tasks/overdue`,
+    search: `${API_URL}/tasks/search`,
+    bulk: `${API_URL}/tasks/bulk`,
+    watchers: (taskId: number) => `${API_URL}/tasks/${taskId}/watchers`
   },
   comments: {
     byTask: (taskId: number) => `${API_URL}/tasks/${taskId}/comments`,
@@ -76,5 +80,34 @@ export const API_ENDPOINTS = {
     upload: (taskId: number) => `${API_URL}/attachments/task/${taskId}`,
     download: (id: number) => `${API_URL}/attachments/${id}/download`,
     delete: (id: number) => `${API_URL}/attachments/${id}`
+  },
+  labels: {
+    base: `${API_URL}/labels`,
+    byId: (id: number) => `${API_URL}/labels/${id}`,
+    byProject: (projectId: number) => `${API_URL}/labels/project/${projectId}`
+  },
+  taskLinks: {
+    base: `${API_URL}/task-links`,
+    byId: (id: number) => `${API_URL}/task-links/${id}`,
+    byTask: (taskId: number) => `${API_URL}/task-links/task/${taskId}`
+  },
+  filters: {
+    base: `${API_URL}/filters`,
+    byId: (id: number) => `${API_URL}/filters/${id}`,
+    byProject: (projectId: number) => `${API_URL}/filters/project/${projectId}`
+  },
+  automations: {
+    base: `${API_URL}/automations`,
+    byId: (id: number) => `${API_URL}/automations/${id}`,
+    byProject: (projectId: number) => `${API_URL}/automations/project/${projectId}`,
+    toggle: (id: number) => `${API_URL}/automations/${id}/toggle`
+  },
+  reports: {
+    sprint: (sprintId: number) => `${API_URL}/reports/sprint/${sprintId}`,
+    velocity: (projectId: number) => `${API_URL}/reports/velocity/${projectId}`
+  },
+  export: {
+    allTasksCsv: `${API_URL}/export/tasks/csv`,
+    projectTasksCsv: (projectId: number) => `${API_URL}/export/projects/${projectId}/tasks/csv`
   }
 };

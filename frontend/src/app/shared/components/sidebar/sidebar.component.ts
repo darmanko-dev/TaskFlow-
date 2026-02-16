@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { KeyboardShortcutService } from '../../../core/services/keyboard-shortcut.service';
 import { User } from '../../../core/models/user.model';
 
 @Component({
@@ -55,6 +56,21 @@ import { User } from '../../../core/models/user.model';
           </li>
         </ul>
 
+        <!-- Tools Section -->
+        <div *ngIf="!collapsed" class="mt-6 px-3">
+          <h4 class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Tools</h4>
+          <ul class="space-y-1">
+            <li>
+              <button (click)="onKeyboardShortcuts()"
+                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all text-sm w-full text-left">
+                <i class="fas fa-keyboard w-5 text-center text-xs"></i>
+                <span>Keyboard Shortcuts</span>
+                <span class="ml-auto text-xs text-gray-500">?</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
         <!-- Recent Projects -->
         <div *ngIf="!collapsed" class="mt-8 px-3">
           <h4 class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Recent Projects</h4>
@@ -97,7 +113,10 @@ export class SidebarComponent implements OnInit {
   currentUser: User | null = null;
   recentProjects: any[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private keyboardShortcutService: KeyboardShortcutService
+  ) {}
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => this.currentUser = user);
@@ -110,5 +129,9 @@ export class SidebarComponent implements OnInit {
   toggleCollapse(): void {
     this.collapsed = !this.collapsed;
     this.collapsedChange.emit(this.collapsed);
+  }
+
+  onKeyboardShortcuts(): void {
+    this.keyboardShortcutService.showHelp();
   }
 }
