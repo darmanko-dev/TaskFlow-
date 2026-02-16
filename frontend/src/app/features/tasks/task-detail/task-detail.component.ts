@@ -17,7 +17,7 @@ import { AvatarComponent } from '../../../shared/components/avatar/avatar.compon
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { AttachmentListComponent } from '../../../shared/components/attachment-list/attachment-list.component';
 import { ActivityLogComponent } from '../../activity/activity-log/activity-log.component';
-import { TaskLinkPanelComponent } from '../../task-links/task-link-panel/task-link-panel.component';
+import { TaskLinkPanelComponent } from '../../../shared/components/task-link-panel/task-link-panel.component';
 
 @Component({
   selector: 'app-task-detail',

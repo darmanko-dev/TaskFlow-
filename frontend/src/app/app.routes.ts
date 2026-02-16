@@ -76,11 +76,11 @@ export const routes: Routes = [
       },
       {
         path: 'projects/:id/automations',
-        loadComponent: () => import('./features/automations/automation-list/automation-list.component').then(m => m.AutomationListComponent)
+        loadComponent: () => import('./features/automation/automation-list/automation-list.component').then(m => m.AutomationListComponent)
       },
       {
         path: 'projects/:id/labels',
-        loadComponent: () => import('./features/labels/label-manager/label-manager.component').then(m => m.LabelManagerComponent)
+        loadComponent: () => import('./shared/components/label-manager/label-manager.component').then(m => m.LabelManagerComponent)
       },
       {
         path: 'sprints/:sprintId/report',
