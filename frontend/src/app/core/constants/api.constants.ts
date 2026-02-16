@@ -43,5 +43,38 @@ export const API_ENDPOINTS = {
   },
   dashboard: {
     stats: `${API_URL}/dashboard/stats`
+  },
+  sprints: {
+    base: `${API_URL}/sprints`,
+    byId: (id: number) => `${API_URL}/sprints/${id}`,
+    byProject: (projectId: number) => `${API_URL}/sprints/project/${projectId}`,
+    tasks: (id: number) => `${API_URL}/sprints/${id}/tasks`,
+    backlog: (projectId: number) => `${API_URL}/sprints/project/${projectId}/backlog`,
+    start: (id: number) => `${API_URL}/sprints/${id}/start`,
+    complete: (id: number) => `${API_URL}/sprints/${id}/complete`,
+    addTask: (sprintId: number, taskId: number) => `${API_URL}/sprints/${sprintId}/tasks/${taskId}`,
+    removeTask: (sprintId: number, taskId: number) => `${API_URL}/sprints/${sprintId}/tasks/${taskId}`
+  },
+  epics: {
+    base: `${API_URL}/epics`,
+    byId: (id: number) => `${API_URL}/epics/${id}`,
+    byProject: (projectId: number) => `${API_URL}/epics/project/${projectId}`
+  },
+  activities: {
+    base: `${API_URL}/activities`,
+    byProject: (projectId: number) => `${API_URL}/activities/project/${projectId}`,
+    byEntity: (entityType: string, entityId: number) => `${API_URL}/activities/entity/${entityType}/${entityId}`
+  },
+  notifications: {
+    base: `${API_URL}/notifications`,
+    unreadCount: `${API_URL}/notifications/unread-count`,
+    markRead: (id: number) => `${API_URL}/notifications/${id}/read`,
+    markAllRead: `${API_URL}/notifications/read-all`
+  },
+  attachments: {
+    byTask: (taskId: number) => `${API_URL}/attachments/task/${taskId}`,
+    upload: (taskId: number) => `${API_URL}/attachments/task/${taskId}`,
+    download: (id: number) => `${API_URL}/attachments/${id}/download`,
+    delete: (id: number) => `${API_URL}/attachments/${id}`
   }
 };

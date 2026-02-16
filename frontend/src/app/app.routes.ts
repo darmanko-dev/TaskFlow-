@@ -51,6 +51,14 @@ export const routes: Routes = [
         data: { view: 'list' }
       },
       {
+        path: 'projects/:id/backlog',
+        loadComponent: () => import('./features/sprints/sprint-backlog/sprint-backlog.component').then(m => m.SprintBacklogComponent)
+      },
+      {
+        path: 'projects/:id/epics',
+        loadComponent: () => import('./features/epics/epic-list/epic-list.component').then(m => m.EpicListComponent)
+      },
+      {
         path: 'tasks',
         loadComponent: () => import('./features/tasks/task-list/task-list.component').then(m => m.TaskListComponent)
       },
@@ -61,6 +69,10 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'activity',
+        loadComponent: () => import('./features/activity/activity-log/activity-log.component').then(m => m.ActivityLogComponent)
       }
     ]
   },

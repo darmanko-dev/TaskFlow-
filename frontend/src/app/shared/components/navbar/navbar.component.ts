@@ -4,15 +4,17 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
+import { NotificationPanelComponent } from '../notification-panel/notification-panel.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { TaskService } from '../../../core/services/task.service';
+import { WebSocketNotificationService } from '../../../core/services/websocket.service';
 import { User } from '../../../core/models/user.model';
 import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AvatarComponent, ClickOutsideDirective],
+  imports: [CommonModule, RouterModule, FormsModule, AvatarComponent, ClickOutsideDirective, NotificationPanelComponent],
   template: `
     <header class="sticky top-0 z-30 bg-white border-b border-gray-200 h-16">
       <div class="flex items-center justify-between h-full px-6">
@@ -66,10 +68,13 @@ import { debounceTime, Subject } from 'rxjs';
           </div>
 
           <!-- Notifications -->
-          <button class="w-8 h-8 text-gray-400 hover:text-gray-600 relative transition-colors">
-            <i class="fas fa-bell"></i>
-            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">3</span>
-          </button>
+          <div class="relative" (appClickOutside)="showNotifications = false">
+            <button (click)="showNotifications = !showNotifications" class="w-8 h-8 text-gray-400 hover:text-gray-600 relative transition-colors">
+              <i class="fas fa-bell"></i>
+              <span *ngIf="unreadCount > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+            </button>
+            <app-notification-panel *ngIf="showNotifications" (close)="showNotifications = false"></app-notification-panel>
+          </div>
 
           <!-- User Menu -->
           <div class="relative" (appClickOutside)="showUserMenu = false">
@@ -107,17 +112,26 @@ export class NavbarComponent implements OnInit {
   showSearchResults = false;
   showCreateMenu = false;
   showUserMenu = false;
+  showNotifications = false;
+  unreadCount = 0;
 
   private searchSubject = new Subject<string>();
 
   constructor(
     private authService: AuthService,
     private taskService: TaskService,
+    private wsService: WebSocketNotificationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe(user => this.currentUser = user);
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      if (user) {
+        this.wsService.connect();
+      }
+    });
+    this.wsService.unreadCount$.subscribe(count => this.unreadCount = count);
     this.searchSubject.pipe(debounceTime(300)).subscribe(query => {
       if (query.length >= 2) {
         this.taskService.searchTasks(query).subscribe(res => {

@@ -2,16 +2,12 @@ package com.taskflow.service;
 
 import com.taskflow.dto.request.TaskRequest;
 import com.taskflow.dto.response.TaskResponse;
-import com.taskflow.entity.Project;
-import com.taskflow.entity.Task;
-import com.taskflow.entity.User;
+import com.taskflow.entity.*;
 import com.taskflow.enums.TaskPriority;
 import com.taskflow.enums.TaskStatus;
 import com.taskflow.exception.ResourceNotFoundException;
 import com.taskflow.mapper.TaskMapper;
-import com.taskflow.repository.ProjectRepository;
-import com.taskflow.repository.TaskRepository;
-import com.taskflow.repository.UserRepository;
+import com.taskflow.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,8 +23,12 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final SprintRepository sprintRepository;
+    private final EpicRepository epicRepository;
     private final UserService userService;
     private final TaskMapper taskMapper;
+    private final ActivityLogService activityLogService;
+    private final NotificationService notificationService;
 
     public Page<TaskResponse> getAllTasks(Pageable pageable) {
         return taskRepository.findAll(pageable).map(taskMapper::toResponse);
@@ -72,6 +72,24 @@ public class TaskService {
                     .orElseThrow(() -> new ResourceNotFoundException("User", "id", request.getAssigneeId()));
         }
 
+        Sprint sprint = null;
+        if (request.getSprintId() != null) {
+            sprint = sprintRepository.findById(request.getSprintId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Sprint", "id", request.getSprintId()));
+        }
+
+        Epic epic = null;
+        if (request.getEpicId() != null) {
+            epic = epicRepository.findById(request.getEpicId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Epic", "id", request.getEpicId()));
+        }
+
+        Task parentTask = null;
+        if (request.getParentTaskId() != null) {
+            parentTask = taskRepository.findById(request.getParentTaskId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Task", "id", request.getParentTaskId()));
+        }
+
         int seq = project.getNextTaskSequence();
         String taskKey = project.getKey() + "-" + String.format("%03d", seq);
 
@@ -82,6 +100,9 @@ public class TaskService {
                 .status(request.getStatus() != null ? request.getStatus() : TaskStatus.TODO)
                 .priority(request.getPriority() != null ? request.getPriority() : TaskPriority.MEDIUM)
                 .project(project)
+                .sprint(sprint)
+                .epic(epic)
+                .parentTask(parentTask)
                 .assignee(assignee)
                 .reporter(reporter)
                 .dueDate(request.getDueDate())
@@ -92,6 +113,16 @@ public class TaskService {
 
         projectRepository.save(project);
         taskRepository.save(task);
+
+        activityLogService.log("CREATED", "TASK", task.getId(), task.getTaskKey(),
+                "Created task: " + task.getTitle(), project.getId());
+
+        if (assignee != null && !assignee.getId().equals(reporter.getId())) {
+            notificationService.sendNotification(assignee.getId(), "TASK_ASSIGNED",
+                    "New task assigned", reporter.getFullName() + " assigned you task " + task.getTaskKey() + ": " + task.getTitle(),
+                    "TASK", task.getId());
+        }
+
         return taskMapper.toResponse(task);
     }
 
@@ -115,7 +146,29 @@ public class TaskService {
             task.setAssignee(assignee);
         }
 
+        if (request.getSprintId() != null) {
+            Sprint sprint = sprintRepository.findById(request.getSprintId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Sprint", "id", request.getSprintId()));
+            task.setSprint(sprint);
+        }
+
+        if (request.getEpicId() != null) {
+            Epic epic = epicRepository.findById(request.getEpicId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Epic", "id", request.getEpicId()));
+            task.setEpic(epic);
+        }
+
+        if (request.getParentTaskId() != null) {
+            Task parentTask = taskRepository.findById(request.getParentTaskId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Task", "id", request.getParentTaskId()));
+            task.setParentTask(parentTask);
+        }
+
         taskRepository.save(task);
+
+        activityLogService.log("UPDATED", "TASK", task.getId(), task.getTaskKey(),
+                "Updated task: " + task.getTitle(), task.getProject().getId());
+
         return taskMapper.toResponse(task);
     }
 
@@ -123,8 +176,23 @@ public class TaskService {
     public TaskResponse updateTaskStatus(Long id, TaskStatus status) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+
+        TaskStatus oldStatus = task.getStatus();
         task.setStatus(status);
         taskRepository.save(task);
+
+        activityLogService.log("STATUS_CHANGED", "TASK", task.getId(), task.getTaskKey(),
+                "Changed status from " + oldStatus + " to " + status, task.getProject().getId());
+
+        if (task.getAssignee() != null) {
+            User currentUser = userService.getCurrentUserEntity();
+            if (!task.getAssignee().getId().equals(currentUser.getId())) {
+                notificationService.sendNotification(task.getAssignee().getId(), "TASK_STATUS_CHANGED",
+                        "Task status updated", currentUser.getFullName() + " changed " + task.getTaskKey() + " status to " + status,
+                        "TASK", task.getId());
+            }
+        }
+
         return taskMapper.toResponse(task);
     }
 
@@ -132,6 +200,10 @@ public class TaskService {
     public void deleteTask(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+
+        activityLogService.log("DELETED", "TASK", task.getId(), task.getTaskKey(),
+                "Deleted task: " + task.getTitle(), task.getProject().getId());
+
         taskRepository.delete(task);
     }
 }

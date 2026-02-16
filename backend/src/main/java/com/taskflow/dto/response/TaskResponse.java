@@ -27,6 +27,14 @@ public class TaskResponse {
     private String projectKey;
     private UserResponse assignee;
     private UserResponse reporter;
+    private Long sprintId;
+    private String sprintName;
+    private Long epicId;
+    private String epicName;
+    private String epicColor;
+    private Long parentTaskId;
+    private String parentTaskKey;
+    private List<TaskResponse> subtasks;
     private LocalDate dueDate;
     private Double estimatedHours;
     private Double loggedHours;

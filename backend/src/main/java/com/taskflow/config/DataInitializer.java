@@ -1,14 +1,8 @@
 package com.taskflow.config;
 
-import com.taskflow.entity.Comment;
-import com.taskflow.entity.Project;
-import com.taskflow.entity.Task;
-import com.taskflow.entity.User;
+import com.taskflow.entity.*;
 import com.taskflow.enums.*;
-import com.taskflow.repository.CommentRepository;
-import com.taskflow.repository.ProjectRepository;
-import com.taskflow.repository.TaskRepository;
-import com.taskflow.repository.UserRepository;
+import com.taskflow.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -29,6 +23,8 @@ public class DataInitializer implements CommandLineRunner {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final CommentRepository commentRepository;
+    private final SprintRepository sprintRepository;
+    private final EpicRepository epicRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -106,36 +102,97 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("Created 3 projects");
 
-        // TaskFlow Platform tasks
-        createTask(taskflow, "Setup CI/CD pipeline", "Configure GitHub Actions for automated testing and deployment to staging and production environments.", TaskStatus.DONE, TaskPriority.HIGH, thomas, sarah, LocalDate.now().minusDays(10), 8.0, 10.0, List.of("devops", "automation"));
-        createTask(taskflow, "Design user dashboard", "Create wireframes and high-fidelity mockups for the main dashboard with stats cards, charts, and recent activity.", TaskStatus.DONE, TaskPriority.HIGH, marie, sarah, LocalDate.now().minusDays(5), 12.0, 14.0, List.of("design", "ui"));
-        createTask(taskflow, "Implement authentication system", "Build JWT-based authentication with login, register, token refresh, and role-based access control.", TaskStatus.DONE, TaskPriority.CRITICAL, thomas, sarah, LocalDate.now().minusDays(15), 16.0, 18.0, List.of("security", "backend"));
-        createTask(taskflow, "Fix login redirect bug", "Users are not being redirected to the dashboard after successful login. Check the auth guard and routing configuration.", TaskStatus.IN_PROGRESS, TaskPriority.HIGH, thomas, sarah, LocalDate.now().plusDays(2), 3.0, 1.5, List.of("bug", "auth"));
-        createTask(taskflow, "Implement drag and drop", "Add drag and drop functionality to the kanban board for task status updates with smooth animations.", TaskStatus.IN_PROGRESS, TaskPriority.CRITICAL, marie, sarah, LocalDate.now().plusDays(5), 10.0, 4.0, List.of("frontend", "feature"));
-        createTask(taskflow, "Write API documentation", "Document all REST API endpoints using Swagger/OpenAPI with request/response examples.", TaskStatus.IN_REVIEW, TaskPriority.MEDIUM, thomas, sarah, LocalDate.now().plusDays(1), 6.0, 5.0, List.of("docs", "api"));
-        createTask(taskflow, "Add email notifications", "Implement email notification system for task assignments, status changes, and due date reminders.", TaskStatus.TODO, TaskPriority.MEDIUM, null, sarah, LocalDate.now().plusDays(14), 12.0, 0.0, List.of("feature", "notifications"));
-        createTask(taskflow, "Optimize database queries", "Review and optimize slow database queries. Add proper indexing for frequently accessed columns.", TaskStatus.TODO, TaskPriority.HIGH, thomas, sarah, LocalDate.now().plusDays(7), 8.0, 0.0, List.of("backend", "performance"));
-        createTask(taskflow, "Create onboarding flow", "Design and implement a guided onboarding experience for new users with tooltips and a welcome wizard.", TaskStatus.TODO, TaskPriority.LOW, marie, sarah, LocalDate.now().plusDays(21), 10.0, 0.0, List.of("ux", "feature"));
-        createTask(taskflow, "Add dark mode support", "Implement dark mode toggle with system preference detection and persistent theme selection.", TaskStatus.TODO, TaskPriority.LOW, null, sarah, LocalDate.now().plusDays(30), 8.0, 0.0, List.of("frontend", "ui"));
+        // Create Epics for TaskFlow
+        Epic authEpic = epicRepository.save(Epic.builder()
+                .name("Authentication & Security").description("All authentication and security related features")
+                .color("#EF4444").project(taskflow).build());
+
+        Epic uiEpic = epicRepository.save(Epic.builder()
+                .name("User Interface").description("UI/UX design and frontend implementation")
+                .color("#6366F1").project(taskflow).build());
+
+        Epic infraEpic = epicRepository.save(Epic.builder()
+                .name("Infrastructure").description("DevOps, CI/CD, and infrastructure tasks")
+                .color("#10B981").project(taskflow).build());
+
+        // Create Epics for Mobile App
+        Epic mobileUxEpic = epicRepository.save(Epic.builder()
+                .name("Mobile UX").description("User experience improvements for mobile")
+                .color("#F59E0B").project(mobileApp).build());
+
+        Epic mobileSecEpic = epicRepository.save(Epic.builder()
+                .name("Mobile Security").description("Security features for mobile app")
+                .color("#8B5CF6").project(mobileApp).build());
+
+        log.info("Created 5 epics");
+
+        // Create Sprints for TaskFlow
+        Sprint tfSprint1 = sprintRepository.save(Sprint.builder()
+                .name("Sprint 1 - Foundation").goal("Setup core infrastructure and authentication")
+                .project(taskflow).status(SprintStatus.COMPLETED)
+                .startDate(LocalDate.now().minusWeeks(4)).endDate(LocalDate.now().minusWeeks(2))
+                .build());
+
+        Sprint tfSprint2 = sprintRepository.save(Sprint.builder()
+                .name("Sprint 2 - Core Features").goal("Implement kanban board and task management")
+                .project(taskflow).status(SprintStatus.ACTIVE)
+                .startDate(LocalDate.now().minusWeeks(2)).endDate(LocalDate.now().plusWeeks(1))
+                .build());
+
+        Sprint tfSprint3 = sprintRepository.save(Sprint.builder()
+                .name("Sprint 3 - Polish").goal("Documentation, notifications, and UI improvements")
+                .project(taskflow).status(SprintStatus.PLANNING)
+                .startDate(LocalDate.now().plusWeeks(1)).endDate(LocalDate.now().plusWeeks(3))
+                .build());
+
+        // Create Sprint for Mobile App
+        Sprint maSprint1 = sprintRepository.save(Sprint.builder()
+                .name("Sprint 1 - Mobile Core").goal("Navigation and offline mode")
+                .project(mobileApp).status(SprintStatus.ACTIVE)
+                .startDate(LocalDate.now().minusWeeks(1)).endDate(LocalDate.now().plusWeeks(2))
+                .build());
+
+        log.info("Created 4 sprints");
+
+        // TaskFlow Platform tasks (with epics and sprints)
+        createTask(taskflow, "Setup CI/CD pipeline", "Configure GitHub Actions for automated testing and deployment.", TaskStatus.DONE, TaskPriority.HIGH, thomas, sarah, LocalDate.now().minusDays(10), 8.0, 10.0, List.of("devops", "automation"), tfSprint1, infraEpic, null);
+        createTask(taskflow, "Design user dashboard", "Create wireframes and mockups for the main dashboard.", TaskStatus.DONE, TaskPriority.HIGH, marie, sarah, LocalDate.now().minusDays(5), 12.0, 14.0, List.of("design", "ui"), tfSprint1, uiEpic, null);
+        createTask(taskflow, "Implement authentication system", "Build JWT-based authentication with login, register, and RBAC.", TaskStatus.DONE, TaskPriority.CRITICAL, thomas, sarah, LocalDate.now().minusDays(15), 16.0, 18.0, List.of("security", "backend"), tfSprint1, authEpic, null);
+        createTask(taskflow, "Fix login redirect bug", "Users not redirected after login. Check auth guard.", TaskStatus.IN_PROGRESS, TaskPriority.HIGH, thomas, sarah, LocalDate.now().plusDays(2), 3.0, 1.5, List.of("bug", "auth"), tfSprint2, authEpic, null);
+        createTask(taskflow, "Implement drag and drop", "Add drag and drop to kanban board with smooth animations.", TaskStatus.IN_PROGRESS, TaskPriority.CRITICAL, marie, sarah, LocalDate.now().plusDays(5), 10.0, 4.0, List.of("frontend", "feature"), tfSprint2, uiEpic, null);
+        createTask(taskflow, "Write API documentation", "Document all REST API endpoints using Swagger/OpenAPI.", TaskStatus.IN_REVIEW, TaskPriority.MEDIUM, thomas, sarah, LocalDate.now().plusDays(1), 6.0, 5.0, List.of("docs", "api"), tfSprint2, null, null);
+        createTask(taskflow, "Add email notifications", "Implement email notifications for task assignments and status changes.", TaskStatus.TODO, TaskPriority.MEDIUM, null, sarah, LocalDate.now().plusDays(14), 12.0, 0.0, List.of("feature", "notifications"), tfSprint3, null, null);
+        createTask(taskflow, "Optimize database queries", "Review and optimize slow queries. Add proper indexing.", TaskStatus.TODO, TaskPriority.HIGH, thomas, sarah, LocalDate.now().plusDays(7), 8.0, 0.0, List.of("backend", "performance"), tfSprint3, infraEpic, null);
+        createTask(taskflow, "Create onboarding flow", "Design guided onboarding with tooltips and welcome wizard.", TaskStatus.TODO, TaskPriority.LOW, marie, sarah, LocalDate.now().plusDays(21), 10.0, 0.0, List.of("ux", "feature"), null, uiEpic, null);
+        createTask(taskflow, "Add dark mode support", "Implement dark mode toggle with system preference detection.", TaskStatus.TODO, TaskPriority.LOW, null, sarah, LocalDate.now().plusDays(30), 8.0, 0.0, List.of("frontend", "ui"), null, uiEpic, null);
 
         // Mobile App v2 tasks
-        createTask(mobileApp, "Design app navigation", "Create the new bottom tab navigation with smooth animations and gesture support.", TaskStatus.DONE, TaskPriority.HIGH, marie, sarah, LocalDate.now().minusDays(7), 6.0, 7.0, List.of("design", "mobile"));
-        createTask(mobileApp, "Implement offline mode", "Add offline data persistence using SQLite and sync mechanism when connectivity is restored.", TaskStatus.IN_PROGRESS, TaskPriority.CRITICAL, thomas, sarah, LocalDate.now().plusDays(10), 20.0, 8.0, List.of("mobile", "feature"));
-        createTask(mobileApp, "Push notification service", "Integrate Firebase Cloud Messaging for real-time push notifications.", TaskStatus.TODO, TaskPriority.HIGH, thomas, sarah, LocalDate.now().plusDays(15), 10.0, 0.0, List.of("mobile", "notifications"));
-        createTask(mobileApp, "Performance optimization", "Reduce app startup time and optimize list rendering for smooth scrolling.", TaskStatus.IN_REVIEW, TaskPriority.MEDIUM, marie, sarah, LocalDate.now().plusDays(3), 8.0, 6.0, List.of("performance", "mobile"));
-        createTask(mobileApp, "Biometric authentication", "Add fingerprint and Face ID authentication for secure app access.", TaskStatus.TODO, TaskPriority.MEDIUM, null, sarah, LocalDate.now().plusDays(20), 6.0, 0.0, List.of("security", "mobile"));
+        createTask(mobileApp, "Design app navigation", "Create bottom tab navigation with animations.", TaskStatus.DONE, TaskPriority.HIGH, marie, sarah, LocalDate.now().minusDays(7), 6.0, 7.0, List.of("design", "mobile"), maSprint1, mobileUxEpic, null);
+        createTask(mobileApp, "Implement offline mode", "Add offline persistence using SQLite and sync mechanism.", TaskStatus.IN_PROGRESS, TaskPriority.CRITICAL, thomas, sarah, LocalDate.now().plusDays(10), 20.0, 8.0, List.of("mobile", "feature"), maSprint1, mobileUxEpic, null);
+        createTask(mobileApp, "Push notification service", "Integrate Firebase Cloud Messaging.", TaskStatus.TODO, TaskPriority.HIGH, thomas, sarah, LocalDate.now().plusDays(15), 10.0, 0.0, List.of("mobile", "notifications"), null, null, null);
+        createTask(mobileApp, "Performance optimization", "Reduce startup time and optimize list rendering.", TaskStatus.IN_REVIEW, TaskPriority.MEDIUM, marie, sarah, LocalDate.now().plusDays(3), 8.0, 6.0, List.of("performance", "mobile"), maSprint1, mobileUxEpic, null);
+        createTask(mobileApp, "Biometric authentication", "Add fingerprint and Face ID authentication.", TaskStatus.TODO, TaskPriority.MEDIUM, null, sarah, LocalDate.now().plusDays(20), 6.0, 0.0, List.of("security", "mobile"), null, mobileSecEpic, null);
 
         // API Migration tasks
-        createTask(apiMigration, "Define GraphQL schema", "Create the complete GraphQL schema with types, queries, and mutations.", TaskStatus.DONE, TaskPriority.CRITICAL, thomas, admin, LocalDate.now().minusDays(30), 12.0, 14.0, List.of("graphql", "backend"));
-        createTask(apiMigration, "Migrate user endpoints", "Migrate all user-related REST endpoints to GraphQL resolvers.", TaskStatus.DONE, TaskPriority.HIGH, thomas, admin, LocalDate.now().minusDays(20), 8.0, 9.0, List.of("migration", "backend"));
-        createTask(apiMigration, "Migration testing", "Comprehensive testing of all migrated endpoints with load testing.", TaskStatus.DONE, TaskPriority.HIGH, thomas, admin, LocalDate.now().minusDays(10), 10.0, 12.0, List.of("testing", "qa"));
+        createTask(apiMigration, "Define GraphQL schema", "Create complete GraphQL schema with types and mutations.", TaskStatus.DONE, TaskPriority.CRITICAL, thomas, admin, LocalDate.now().minusDays(30), 12.0, 14.0, List.of("graphql", "backend"), null, null, null);
+        createTask(apiMigration, "Migrate user endpoints", "Migrate REST endpoints to GraphQL resolvers.", TaskStatus.DONE, TaskPriority.HIGH, thomas, admin, LocalDate.now().minusDays(20), 8.0, 9.0, List.of("migration", "backend"), null, null, null);
+        createTask(apiMigration, "Migration testing", "Comprehensive testing of all migrated endpoints.", TaskStatus.DONE, TaskPriority.HIGH, thomas, admin, LocalDate.now().minusDays(10), 10.0, 12.0, List.of("testing", "qa"), null, null, null);
 
         log.info("Created 18 tasks");
 
-        // Create Comments
+        // Create some subtasks for "Implement drag and drop"
         List<Task> tasks = taskRepository.findAll();
-        Task fixLoginTask = tasks.stream().filter(t -> t.getTitle().contains("Fix login")).findFirst().orElse(null);
         Task dragDropTask = tasks.stream().filter(t -> t.getTitle().contains("drag and drop")).findFirst().orElse(null);
+        if (dragDropTask != null) {
+            createTask(taskflow, "Setup CDK drag module", "Install and configure Angular CDK Drag & Drop module.", TaskStatus.DONE, TaskPriority.MEDIUM, marie, sarah, LocalDate.now().plusDays(3), 2.0, 2.0, List.of("frontend"), tfSprint2, uiEpic, dragDropTask);
+            createTask(taskflow, "Implement column drop zones", "Create drop zones for each kanban column.", TaskStatus.IN_PROGRESS, TaskPriority.MEDIUM, marie, sarah, LocalDate.now().plusDays(4), 4.0, 2.0, List.of("frontend"), tfSprint2, uiEpic, dragDropTask);
+            createTask(taskflow, "Add drag animations", "Add smooth animations during drag operations.", TaskStatus.TODO, TaskPriority.LOW, marie, sarah, LocalDate.now().plusDays(5), 3.0, 0.0, List.of("frontend", "animation"), tfSprint2, uiEpic, dragDropTask);
+        }
+
+        log.info("Created 3 subtasks");
+
+        // Create Comments
+        Task fixLoginTask = tasks.stream().filter(t -> t.getTitle().contains("Fix login")).findFirst().orElse(null);
         Task apiDocTask = tasks.stream().filter(t -> t.getTitle().contains("API documentation")).findFirst().orElse(null);
         Task cicdTask = tasks.stream().filter(t -> t.getTitle().contains("CI/CD")).findFirst().orElse(null);
 
@@ -163,7 +220,8 @@ public class DataInitializer implements CommandLineRunner {
 
     private void createTask(Project project, String title, String description, TaskStatus status,
                              TaskPriority priority, User assignee, User reporter, LocalDate dueDate,
-                             Double estimatedHours, Double loggedHours, List<String> tags) {
+                             Double estimatedHours, Double loggedHours, List<String> tags,
+                             Sprint sprint, Epic epic, Task parentTask) {
         int seq = project.getNextTaskSequence();
         String taskKey = project.getKey() + "-" + String.format("%03d", seq);
         Task task = Task.builder()
@@ -171,6 +229,7 @@ public class DataInitializer implements CommandLineRunner {
                 .status(status).priority(priority).project(project)
                 .assignee(assignee).reporter(reporter).dueDate(dueDate)
                 .estimatedHours(estimatedHours).loggedHours(loggedHours).tags(tags)
+                .sprint(sprint).epic(epic).parentTask(parentTask)
                 .build();
         taskRepository.save(task);
         projectRepository.save(project);

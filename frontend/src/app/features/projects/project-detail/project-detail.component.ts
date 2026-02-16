@@ -17,8 +17,9 @@ import { AvatarComponent } from '../../../shared/components/avatar/avatar.compon
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 
 import { ProjectMembersComponent } from '../project-members/project-members.component';
+import { ActivityLogComponent } from '../../activity/activity-log/activity-log.component';
 
-type ActiveTab = 'board' | 'list' | 'members';
+type ActiveTab = 'board' | 'list' | 'members' | 'backlog' | 'epics' | 'activity';
 
 interface BoardColumn {
   status: TaskStatus;
@@ -38,7 +39,8 @@ interface BoardColumn {
     PriorityBadgeComponent,
     AvatarComponent,
     EmptyStateComponent,
-    ProjectMembersComponent
+    ProjectMembersComponent,
+    ActivityLogComponent
   ],
   template: `
     <!-- Loading -->
@@ -258,6 +260,29 @@ interface BoardColumn {
           (memberChanged)="reloadProject()">
         </app-project-members>
       </div>
+
+      <!-- ========== BACKLOG TAB ========== -->
+      <div *ngIf="activeTab === 'backlog'" class="animate-fadeIn">
+        <p class="text-sm text-gray-500 mb-4">Planifiez vos sprints et gerez le backlog du projet.</p>
+        <a [routerLink]="['/projects', project.id, 'backlog']"
+           class="btn btn-primary">
+          <i class="fas fa-external-link-alt mr-2"></i>Ouvrir le Backlog complet
+        </a>
+      </div>
+
+      <!-- ========== EPICS TAB ========== -->
+      <div *ngIf="activeTab === 'epics'" class="animate-fadeIn">
+        <p class="text-sm text-gray-500 mb-4">Organisez vos taches en epics pour mieux structurer votre projet.</p>
+        <a [routerLink]="['/projects', project.id, 'epics']"
+           class="btn btn-primary">
+          <i class="fas fa-external-link-alt mr-2"></i>Gerer les Epics
+        </a>
+      </div>
+
+      <!-- ========== ACTIVITY TAB ========== -->
+      <div *ngIf="activeTab === 'activity'" class="animate-fadeIn">
+        <app-activity-log [projectId]="project.id" [isEmbedded]="true"></app-activity-log>
+      </div>
     </div>
 
     <!-- Not Found State -->
@@ -375,7 +400,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   tabs: { key: ActiveTab; label: string; icon: string }[] = [
     { key: 'board', label: 'Board', icon: 'fa-columns' },
     { key: 'list', label: 'List', icon: 'fa-list' },
-    { key: 'members', label: 'Members', icon: 'fa-users' }
+    { key: 'backlog', label: 'Backlog', icon: 'fa-inbox' },
+    { key: 'epics', label: 'Epics', icon: 'fa-layer-group' },
+    { key: 'members', label: 'Members', icon: 'fa-users' },
+    { key: 'activity', label: 'Activity', icon: 'fa-history' }
   ];
 
   boardColumns: BoardColumn[] = [

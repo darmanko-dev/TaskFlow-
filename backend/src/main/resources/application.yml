@@ -22,8 +22,17 @@ spring:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
   port: 8080
+
+taskflow:
+  upload:
+    dir: ./uploads
 
 jwt:
   secret: taskflow-secret-key-very-long-and-secure-256-bits-minimum-required-for-hmac-sha

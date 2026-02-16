@@ -49,6 +49,22 @@ public class Task {
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id")
+    private Sprint sprint;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "epic_id")
+    private Epic epic;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_task_id")
+    private Task parentTask;
+
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Task> subtasks = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id")
     private User assignee;
 

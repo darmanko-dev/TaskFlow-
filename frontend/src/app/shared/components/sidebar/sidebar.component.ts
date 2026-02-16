@@ -46,6 +46,13 @@ import { User } from '../../../core/models/user.model';
               <span *ngIf="!collapsed" class="text-sm font-medium">Projects</span>
             </a>
           </li>
+          <li>
+            <a routerLink="/activity" routerLinkActive="bg-primary/20 text-primary-light"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all group">
+              <i class="fas fa-history w-5 text-center text-sm"></i>
+              <span *ngIf="!collapsed" class="text-sm font-medium">Activity</span>
+            </a>
+          </li>
         </ul>
 
         <!-- Recent Projects -->

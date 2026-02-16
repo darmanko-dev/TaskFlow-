@@ -27,6 +27,14 @@ export interface Task {
   projectKey: string;
   assignee: User | null;
   reporter: User;
+  sprintId: number | null;
+  sprintName: string | null;
+  epicId: number | null;
+  epicName: string | null;
+  epicColor: string | null;
+  parentTaskId: number | null;
+  parentTaskKey: string | null;
+  subtasks: Task[];
   dueDate: string;
   estimatedHours: number;
   loggedHours: number;
@@ -44,6 +52,9 @@ export interface TaskRequest {
   priority: TaskPriority;
   projectId: number;
   assigneeId: number | null;
+  sprintId?: number | null;
+  epicId?: number | null;
+  parentTaskId?: number | null;
   dueDate: string;
   estimatedHours: number;
   loggedHours: number;

@@ -25,6 +25,9 @@ public class TaskRequest {
     private Long projectId;
 
     private Long assigneeId;
+    private Long sprintId;
+    private Long epicId;
+    private Long parentTaskId;
     private LocalDate dueDate;
     private Double estimatedHours;
     private Double loggedHours;

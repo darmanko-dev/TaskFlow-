@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { Task, TaskStatus, TaskPriority } from '../../../core/models/task.model';
@@ -14,6 +14,8 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { PriorityBadgeComponent } from '../../../shared/components/priority-badge/priority-badge.component';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { AttachmentListComponent } from '../../../shared/components/attachment-list/attachment-list.component';
+import { ActivityLogComponent } from '../../activity/activity-log/activity-log.component';
 
 @Component({
   selector: 'app-task-detail',
@@ -21,10 +23,13 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     StatusBadgeComponent,
     PriorityBadgeComponent,
     AvatarComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    AttachmentListComponent,
+    ActivityLogComponent
   ],
   template: `
     <!-- Loading -->
@@ -61,6 +66,22 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
             <span class="text-sm text-gray-500">
               in <span class="font-medium text-gray-700">{{ task.projectName }}</span>
             </span>
+          </div>
+
+          <!-- Epic & Sprint badges -->
+          <div *ngIf="task.epicName || task.sprintName || task.parentTaskKey" class="flex items-center gap-2 flex-wrap mb-4">
+            <span *ngIf="task.epicName" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                  [style.backgroundColor]="task.epicColor + '20'" [style.color]="task.epicColor">
+              <span class="w-2 h-2 rounded-full" [style.backgroundColor]="task.epicColor"></span>
+              {{ task.epicName }}
+            </span>
+            <span *ngIf="task.sprintName" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+              <i class="fas fa-running text-[10px]"></i>{{ task.sprintName }}
+            </span>
+            <a *ngIf="task.parentTaskKey" [routerLink]="['/tasks', task.parentTaskId]"
+               class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">
+              <i class="fas fa-level-up-alt text-[10px]"></i>Parent: {{ task.parentTaskKey }}
+            </a>
           </div>
 
           <!-- Description Section -->
@@ -132,6 +153,39 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- Subtasks Section -->
+          <div *ngIf="task.subtasks && task.subtasks.length > 0" class="mt-8">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
+              <i class="fas fa-sitemap mr-2 text-gray-400"></i>Sous-taches
+              <span class="ml-2 text-xs font-normal text-gray-400">({{ task.subtasks.length }})</span>
+            </h3>
+            <div class="space-y-2">
+              <a *ngFor="let subtask of task.subtasks" [routerLink]="['/tasks', subtask.id]"
+                 class="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer">
+                <app-status-badge [status]="subtask.status"></app-status-badge>
+                <span class="text-xs font-mono text-gray-400">{{ subtask.taskKey }}</span>
+                <span class="text-sm text-gray-800 flex-1 truncate">{{ subtask.title }}</span>
+                <app-priority-badge [priority]="subtask.priority"></app-priority-badge>
+              </a>
+            </div>
+          </div>
+
+          <!-- Attachments Section -->
+          <div class="mt-8">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
+              <i class="fas fa-paperclip mr-2 text-gray-400"></i>Pieces jointes
+            </h3>
+            <app-attachment-list [taskId]="task.id"></app-attachment-list>
+          </div>
+
+          <!-- Activity Section -->
+          <div class="mt-8">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
+              <i class="fas fa-history mr-2 text-gray-400"></i>Historique d'activite
+            </h3>
+            <app-activity-log [entityType]="'TASK'" [entityId]="task.id" [isEmbedded]="true"></app-activity-log>
           </div>
         </div>
 
