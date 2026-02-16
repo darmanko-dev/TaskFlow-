@@ -20,8 +20,8 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
            (dragover)="onDragOver($event)"
            (dragleave)="onDragLeave($event)"
            (drop)="onDrop($event)"
-           [class.border-primary]="isDragging"
-           [class.bg-primary/5]="isDragging">
+           [class.border-blue-500]="isDragging"
+           [class.bg-blue-50]="isDragging">
         <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-1"></i>
         <p class="text-sm text-gray-500">Glissez-deposez des fichiers ici ou <span class="text-primary font-medium">parcourir</span></p>
         <p class="text-xs text-gray-400 mt-1">Max 10MB par fichier</p>
@@ -130,7 +130,7 @@ export class AttachmentListComponent implements OnInit {
 
   uploadFile(file: File): void {
     if (file.size > 10 * 1024 * 1024) {
-      this.notificationService.showError('Le fichier depasse la taille maximale de 10MB');
+      this.notificationService.error('Le fichier depasse la taille maximale de 10MB');
       return;
     }
 
@@ -139,12 +139,12 @@ export class AttachmentListComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.attachments.unshift(res.data);
-          this.notificationService.showSuccess('Fichier televerse');
+          this.notificationService.success('Fichier televerse');
         }
         this.uploading = false;
       },
       error: () => {
-        this.notificationService.showError('Erreur lors du telechargement');
+        this.notificationService.error('Erreur lors du telechargement');
         this.uploading = false;
       }
     });
@@ -154,7 +154,7 @@ export class AttachmentListComponent implements OnInit {
     this.attachmentService.deleteAttachment(attachment.id).subscribe(res => {
       if (res.success) {
         this.attachments = this.attachments.filter(a => a.id !== attachment.id);
-        this.notificationService.showSuccess('Fichier supprime');
+        this.notificationService.success('Fichier supprime');
       }
     });
   }

@@ -260,12 +260,12 @@ export class TaskListComponent implements OnInit, OnChanges {
     this.loading = true;
     this.errorMessage = '';
 
-    const request$ = this.projectId
+    const request$: any = this.projectId
       ? this.taskService.getTasksByProject(this.projectId)
       : this.taskService.getMyTasks(this.currentPage, this.pageSize);
 
     request$.subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success) {
           if (Array.isArray(response.data)) {
             // getTasksByProject returns Task[]

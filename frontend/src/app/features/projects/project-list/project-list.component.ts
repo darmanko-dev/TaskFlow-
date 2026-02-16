@@ -220,9 +220,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   activeFilter: ProjectStatus | null = null;
   filterTabs: FilterTab[] = [
     { label: 'All', value: null, count: 0 },
-    { label: 'Active', value: ProjectStatus.IN_PROGRESS, count: 0 },
+    { label: 'Active', value: ProjectStatus.ACTIVE, count: 0 },
     { label: 'Completed', value: ProjectStatus.COMPLETED, count: 0 },
-    { label: 'Archived', value: ProjectStatus.CANCELLED, count: 0 }
+    { label: 'Archived', value: ProjectStatus.ARCHIVED, count: 0 }
   ];
 
   currentPage = 0;
@@ -300,9 +300,9 @@ export class ProjectListComponent implements OnInit, OnDestroy {
       });
 
     const statuses: (ProjectStatus | null)[] = [
-      ProjectStatus.IN_PROGRESS,
+      ProjectStatus.ACTIVE,
       ProjectStatus.COMPLETED,
-      ProjectStatus.CANCELLED
+      ProjectStatus.ARCHIVED
     ];
 
     statuses.forEach((status, index) => {

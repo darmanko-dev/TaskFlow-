@@ -130,7 +130,7 @@ import { TaskLinkPanelComponent } from '../../../shared/components/task-link-pan
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
                       <span class="text-sm font-semibold text-gray-900">{{ comment.author.fullName }}</span>
-                      <span class="text-xs text-gray-400">{{ comment.createdAt | date:'MMM d, yyyy \'at\' h:mm a' }}</span>
+                      <span class="text-xs text-gray-400">{{ comment.createdAt | date:'MMM d, yyyy, h:mm a' }}</span>
                     </div>
                     <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
                   </div>

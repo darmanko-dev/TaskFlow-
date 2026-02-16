@@ -153,11 +153,9 @@ export class ProjectFormComponent implements OnChanges {
   saving = false;
 
   projectStatuses = [
-    { value: ProjectStatus.PLANNING, label: 'Planning' },
-    { value: ProjectStatus.IN_PROGRESS, label: 'In Progress' },
-    { value: ProjectStatus.ON_HOLD, label: 'On Hold' },
+    { value: ProjectStatus.ACTIVE, label: 'Active' },
     { value: ProjectStatus.COMPLETED, label: 'Completed' },
-    { value: ProjectStatus.CANCELLED, label: 'Cancelled' }
+    { value: ProjectStatus.ARCHIVED, label: 'Archived' }
   ];
 
   constructor(
@@ -169,7 +167,7 @@ export class ProjectFormComponent implements OnChanges {
       name: ['', [Validators.required, Validators.minLength(2)]],
       key: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10), Validators.pattern(/^[A-Z0-9]+$/)]],
       description: [''],
-      status: [ProjectStatus.PLANNING],
+      status: [ProjectStatus.ACTIVE],
       startDate: [''],
       endDate: ['']
     });
@@ -212,7 +210,7 @@ export class ProjectFormComponent implements OnChanges {
           name: '',
           key: '',
           description: '',
-          status: ProjectStatus.PLANNING,
+          status: ProjectStatus.ACTIVE,
           startDate: '',
           endDate: ''
         });
@@ -238,7 +236,7 @@ export class ProjectFormComponent implements OnChanges {
       name: formValue.name.trim(),
       key: formValue.key.trim().toUpperCase(),
       description: formValue.description?.trim() || '',
-      status: this.isEditMode ? formValue.status : ProjectStatus.PLANNING,
+      status: this.isEditMode ? formValue.status : ProjectStatus.ACTIVE,
       startDate: formValue.startDate || '',
       endDate: formValue.endDate || ''
     };

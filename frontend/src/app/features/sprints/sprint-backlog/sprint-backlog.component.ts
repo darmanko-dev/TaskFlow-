@@ -272,7 +272,7 @@ export class SprintBacklogComponent implements OnInit {
   startSprint(sprint: Sprint): void {
     this.sprintService.startSprint(sprint.id).subscribe(res => {
       if (res.success) {
-        this.notificationService.showSuccess('Sprint started');
+        this.notificationService.success('Sprint started');
         this.loadData();
       }
     });
@@ -281,7 +281,7 @@ export class SprintBacklogComponent implements OnInit {
   completeSprint(sprint: Sprint): void {
     this.sprintService.completeSprint(sprint.id).subscribe(res => {
       if (res.success) {
-        this.notificationService.showSuccess('Sprint completed');
+        this.notificationService.success('Sprint completed');
         this.loadData();
       }
     });
@@ -305,7 +305,7 @@ export class SprintBacklogComponent implements OnInit {
     if (this.editingSprintId) {
       this.sprintService.updateSprint(this.editingSprintId, this.sprintForm).subscribe(res => {
         if (res.success) {
-          this.notificationService.showSuccess('Sprint updated');
+          this.notificationService.success('Sprint updated');
           this.cancelSprintForm();
           this.loadData();
         }
@@ -313,7 +313,7 @@ export class SprintBacklogComponent implements OnInit {
     } else {
       this.sprintService.createSprint(this.sprintForm).subscribe(res => {
         if (res.success) {
-          this.notificationService.showSuccess('Sprint created');
+          this.notificationService.success('Sprint created');
           this.cancelSprintForm();
           this.loadData();
         }
@@ -324,7 +324,7 @@ export class SprintBacklogComponent implements OnInit {
   deleteSprint(sprint: Sprint): void {
     this.sprintService.deleteSprint(sprint.id).subscribe(res => {
       if (res.success) {
-        this.notificationService.showSuccess('Sprint deleted');
+        this.notificationService.success('Sprint deleted');
         this.loadData();
       }
     });

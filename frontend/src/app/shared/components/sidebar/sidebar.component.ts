@@ -132,6 +132,6 @@ export class SidebarComponent implements OnInit {
   }
 
   onKeyboardShortcuts(): void {
-    this.keyboardShortcutService.showHelp();
+    this.keyboardShortcutService.showHelp$.next(true);
   }
 }

@@ -27,7 +27,7 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
         <div *ngFor="let notification of notifications"
              (click)="onNotificationClick(notification)"
              class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 transition-colors"
-             [class.bg-blue-50/50]="!notification.read">
+             [class.bg-blue-50]="!notification.read">
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                  [ngClass]="getTypeClass(notification.type)">

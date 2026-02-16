@@ -1,12 +1,12 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BaseChartDirective } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js/auto';
 
 @Component({
   selector: 'app-priority-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, NgChartsModule],
   template: `
     <div class="bg-white rounded-xl shadow-sm p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Tasks by Priority</h3>

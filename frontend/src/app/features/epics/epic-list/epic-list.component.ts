@@ -159,7 +159,7 @@ export class EpicListComponent implements OnInit {
     if (this.editingId) {
       this.epicService.updateEpic(this.editingId, this.formData).subscribe(res => {
         if (res.success) {
-          this.notificationService.showSuccess('Epic updated');
+          this.notificationService.success('Epic updated');
           this.cancelForm();
           this.loadEpics();
         }
@@ -167,7 +167,7 @@ export class EpicListComponent implements OnInit {
     } else {
       this.epicService.createEpic(this.formData).subscribe(res => {
         if (res.success) {
-          this.notificationService.showSuccess('Epic created');
+          this.notificationService.success('Epic created');
           this.cancelForm();
           this.loadEpics();
         }
@@ -178,7 +178,7 @@ export class EpicListComponent implements OnInit {
   deleteEpic(epic: Epic): void {
     this.epicService.deleteEpic(epic.id).subscribe(res => {
       if (res.success) {
-        this.notificationService.showSuccess('Epic deleted');
+        this.notificationService.success('Epic deleted');
         this.loadEpics();
       }
     });
